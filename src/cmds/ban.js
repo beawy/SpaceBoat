@@ -96,7 +96,7 @@ module.exports.run = async (bot, message, args) => {
                 guild: message.guild.id,
                 time: Date.now() + banPeriod * multiplier * 3600000
             }
-            fs.writeFileSync("./data/bans.json", JSON.stringify(bans, null, 4), err => {
+            fs.writeFileSync("src/data/bans.json", JSON.stringify(bans, null, 4), err => {
                 if (err) throw err;
             });
             await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Ban:** ${reason}`, 10, (err, result) => {

@@ -1,4 +1,3 @@
-// const bot = require('./bot');
 const Discord = require('discord.js');
 const guilds = require("./data/guilds.json");
 const sqlite3 = require('sqlite3').verbose();

@@ -3,8 +3,8 @@
   "version": "0.0.6",
   "main": "bot.js",
   "scripts": {
-    "start": "nodemon bot.js",
-    "background": "screen -dmS SpaceBoat nodemon bot.js"
+    "start": "nodemon src/bot.js",
+    "background": "screen -dmS SpaceBoat nodemon src/bot.js"
   },
   "author": "Votyn",
   "license": "MIT",

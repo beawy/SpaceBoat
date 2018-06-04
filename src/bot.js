@@ -6,14 +6,14 @@ try {
     var mutes = require("./data/config.json");
 }
 catch (error) {
-    console.log(`${message.error}\nPlease edit the config-example.json file, and rename it as config.json!`)
+    console.log(`${error.message}\nPlease edit the config-example.json file, and rename it as config.json!`)
 }
 try {
     var mutes = require("./data/mutes.json");
 }
 catch (error) {
     console.log(`${error.message}`);
-    fs.writeFileSync("./data/mutes.json", JSON.stringify({}, null, 4), err => {
+    fs.writeFileSync("src/data/mutes.json", JSON.stringify({}, null, 4), err => {
         if (err) console.error('Error creating mutes.json file:', err);
     });
     var mutes = require("./data/mutes.json");
@@ -24,7 +24,7 @@ try {
 }
 catch (error) {
     console.log(`${error.message}`);
-    fs.writeFileSync("./data/bans.json", JSON.stringify({}, null, 4), err => {
+    fs.writeFileSync("src/data/bans.json", JSON.stringify({}, null, 4), err => {
         if (err) console.error('Error creating bans.json file:', err);
     });
     var bans = require("./data/bans.json");
@@ -36,7 +36,7 @@ try {
 }
 catch (error) {
     console.log(`${error.message}\nCreating new guilds.json file.`);
-    fs.writeFileSync("./data/guilds.json", JSON.stringify({}, null, 4), err => {
+    fs.writeFileSync("src/data/guilds.json", JSON.stringify({}, null, 4), err => {
         if (err) console.error('Error saving guilds.json file:', err);
     });
     var guilds = require("./data/guilds.json");
@@ -48,7 +48,7 @@ bot.utils = global.utils = require('./utils');
 
 bot.commands = new Discord.Collection();
 
-fs.readdir("./cmds/", (err, files) => {
+fs.readdir("src/cmds/", (err, files) => {
     if (err) console.error(err);
 
     let jsfiles = files.filter(f => f.split(".").pop() === "js")
@@ -78,7 +78,7 @@ bot.on('ready', () => {
                 botChannelID: "",
                 adminbotChannelID: ""
             }
-            fs.writeFile("./data/guilds.json", JSON.stringify(guilds, null, 4), err => {
+            fs.writeFileSync("src/data/guilds.json", JSON.stringify(guilds, null, 4), err => {
                 if (err) console.error('Error saving guilds.json file:', err);
             });
             console.log("Guild added to guilds.json. Please configure channelIDs.");
@@ -120,7 +120,7 @@ bot.on('ready', () => {
                 if (!member) {
                     console.log('ERROR: User is not in the server anymore!');
                     delete mutes[i];
-                    fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    fs.writeFileSync("src/data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
                     });
                     continue;
@@ -129,7 +129,7 @@ bot.on('ready', () => {
                 if (!member.roles.has(mutedRole.id)) {
                     console.log('User has been manually unmuted!');
                     delete mutes[i];
-                    fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    fs.writeFileSync("src/data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
                     });
                     let logChannel = guild.channels.get(guilds[guildID].logChannelID)
@@ -160,7 +160,7 @@ bot.on('ready', () => {
                     //remove the entry
                     mutes[i] = null;
                     delete mutes[i];
-                    fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    fs.writeFileSync("src/data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file:', err);
                     });
                 }
@@ -224,7 +224,7 @@ bot.on('ready', () => {
     }
 });
 
-bot.db = global.db = new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
+bot.db = global.db = new sqlite3.Database('src/data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
     if (err) return console.error(err.message);
     else console.log(`Connected to Database.`);
 })
@@ -243,6 +243,10 @@ bot.on('message', message => {
     if (!command.startsWith(config.prefix)) return;
 
     let cmd = bot.commands.get(command.slice(config.prefix.length));
+    if (cmd.help.type == "Private" && message.author.id != 166125035092836352 ||
+        cmd.help.type == "Administration" && !message.member.hasPermission("ADMINISTRATOR") ||
+        cmd.help.type == "Moderation" && !message.member.hasPermission("KICK_MEMBERS")) return;
+    
     if (cmd) cmd.run(bot, message, args);
 });
 
